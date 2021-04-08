@@ -19,10 +19,16 @@
       "email": "emmab@mock-api.com"
     },
     {
-        "id": 4,
-        "first_name": "Fred",
-        "last_name": "Flintstone",
-        "email": "fredf@mock-api.com"
-      }
+      "id": 4,
+      "first_name": "Fred",
+      "last_name": "Flintstone",
+      "email": "fredf@mock-api.com"
+    },
+    {
+      "id": 5,
+      "first_name": "Tebogo",
+      "last_name": "Makoko",
+      "email": "tebogomakoko@gmail"
+    }
   ]
 }
