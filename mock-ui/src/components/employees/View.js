@@ -1,26 +1,19 @@
-import React, { Component } from 'react';
+import React, { useState} from 'react';
 
 const buttonStyle = {
     width: '75px',
     marginLeft: '5px'
 }
 
-class View extends Component {
+function View(props) {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
 
-    constructor(props){
-        super(props);
-        this.state = {
-            firstName: '',
-            lastName: '',
-            email: ''
-        }
-    }
-    
-    handleSubmit = (e) => {
+    function handleSubmit (e) {
         e.preventDefault();
-        if (this.props.onSubmit){
-            const { firstName, lastName, email } = this.state;
-            this.props.onSubmit({
+        if (props.onSubmit){
+            props.onSubmit({
                 firstName,
                 lastName,
                 email
@@ -28,19 +21,13 @@ class View extends Component {
         }
     }
 
-    handleChange = (e) => {
-        this.setState({
-            [e.target.name]: e.target.value
-        })
-    }
+    const error = '';
+    const { onCancel } = props;
 
-    render() {
-        const error = '';
-        const { onCancel } = this.props;
-        return (
-            <div className="container">
+    return (
+        <div className="container">
                 <div className="row">
-                    <form className="col-md" onSubmit={this.handleSubmit}>
+                    <form className="col-md" onSubmit={handleSubmit}>
                         <h1 className="h3 mb-3 font-weight-normal">Add Employee</h1>
                         {error}
                         <div className="form-group">
@@ -50,8 +37,8 @@ class View extends Component {
                                 className="form-control"
                                 id="firstName"
                                 name="firstName"
-                                value={this.state.firstName}
-                                onChange={this.handleChange} />
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="lastName">Last name</label>
@@ -60,8 +47,8 @@ class View extends Component {
                                 className="form-control"
                                 id="lastName"
                                 name="lastName"
-                                value={this.state.lastName}
-                                onChange={this.handleChange} />
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="email">Email</label>
@@ -70,8 +57,8 @@ class View extends Component {
                                 className="form-control"
                                 id="email"
                                 name="email"
-                                value={this.state.email}
-                                onChange={this.handleChange} />
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)} />
                         </div>
                         <div className="form-group row">
                             <div className="col-12 d-flex justify-content-end">
@@ -82,8 +69,7 @@ class View extends Component {
                     </form>
                 </div>
             </div>
-        )
-    }
+    );
 }
 
 export default View;
