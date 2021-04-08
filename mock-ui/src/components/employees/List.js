@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 
@@ -9,113 +9,107 @@ import View from './View';
 
 import "@reach/dialog/styles.css";
 
-class List extends Component {
+function List (props) {
+    const [employee, setEmployee] = useState(null);
+    const _confirmDialog = useRef(null);
+    const _formDialog = useRef(null);
+    const { employees, error } = props;
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            employee: null
-        };
-        this._confirmDialog = React.createRef();
-        this._formDialog = React.createRef();
+    function confirmDelete (employee) {
+        setEmployee(employee);
+        _confirmDialog.current.open('Confirm Delete', `Are you sure you want to delete ${employee.first_name} ${employee.last_name}?`);
     }
 
-    confirmDelete = (employee) => {
-        this.setState({ employee });
-        this._confirmDialog.current.open('Confirm Delete', `Are you sure you want to delete ${employee.first_name} ${employee.last_name}?`);
+    function addEmployee () {
+        _formDialog.current.open();
     }
 
-    addEmployee = () => {
-        this._formDialog.current.open();
-    }
-
-    onSubmit = (formData) => {
+    function onSubmit (formData) {
         const employee = {
-            id: Math.max(...this.props.employees.map(e => e.id)) +1,
+            id: Math.max(...props.employees.map(e => e.id)) +1,
             first_name: formData.firstName,
             last_name: formData.lastName,
             email: formData.email
         }
         
-        this.props.addEmployee(employee);
+        props.addEmployee(employee);
     }
 
-    onCancel = (cancelled) => {
+    function onCancel (cancelled) {
         if (!cancelled) {
-            this.props.deleteEmployee(this.state.employee);
+            props.deleteEmployee(employee);
         }
     }
 
-    componentWillMount() {
-        this.props.fetchEmployees();
+    useEffect(() => {
+        props.fetchEmployees();
+    });
+
+
+    let displayError = null;
+    let employeesDisplay = <tr><td colspan="2">No Employees</td></tr>;
+
+    if (error) {
+        displayError = <div>Error: {error}</div>
     }
 
-    render() {
-        const { employees, error } = this.props;
-        let displayError = null;
-        let employeesDisplay = <tr><td colspan="2">No Employees</td></tr>;
+    if (employees) {
+        employeesDisplay = employees.map(e => {
+            return (
+                <tr key={e.id}>
+                    <td>{e.id}</td>
+                    <td>{e.first_name}</td>
+                    <td>{e.last_name}</td>
+                    <td>{e.email}</td>
+                    <td><button className="btn btn-danger" onClick={() => confirmDelete(e)}>X</button></td>
+                </tr>
+            )
+        });
+    }
 
-        if (error) {
-            displayError = <div>Error: {error}</div>
-        }
 
-        if (employees) {
-            employeesDisplay = employees.map(e => {
-                return (
-                    <tr key={e.id}>
-                        <td>{e.id}</td>
-                        <td>{e.first_name}</td>
-                        <td>{e.last_name}</td>
-                        <td>{e.email}</td>
-                        <td><button className="btn btn-danger" onClick={() => this.confirmDelete(e)}>X</button></td>
-                    </tr>
-                )
-            });
-        }
-
-        return (
-            <div className="container-fluid">
-                <div className="row">
-                    <div className="col-10">
-                        <h1 className="display-1">Employee List</h1>
-                    </div>
+    return (
+        <div className="container-fluid">
+            <div className="row">
+                <div className="col-10">
+                     <h1 className="display-1">Employee List</h1>
                 </div>
-                <div className="row align-items-center">
-                    <div className="col-8">{displayError}</div>
-                </div>
-                <br />
-                <div className="row">
-                    <div className="col-10">
-                        <table className="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>First name</th>
-                                    <th>Last name</th>
-                                    <th>Email</th>
-                                    <th><button className="btn btn-primary" onClick={() => this.addEmployee()}>+</button></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {employeesDisplay}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <ConfirmDialog
-                    ref={this._confirmDialog}
-                    onCancel={this.onCancel}
-                />
-                <FormDialog
-                    ref={this._formDialog}
-                    onSuccess={this.onSubmit}>
-                    <View
-                        key="EmployeeView"
-                    />
-                </FormDialog>
             </div>
-        )
-    }
+            <div className="row align-items-center">
+                <div className="col-8">{displayError}</div>
+            </div>
+            <br />
+            <div className="row">
+                <div className="col-10">
+                    <table className="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>First name</th>
+                                <th>Last name</th>
+                                <th>Email</th>
+                                <th><button className="btn btn-primary" onClick={() => addEmployee()}>+</button></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {employeesDisplay}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <ConfirmDialog
+                ref={_confirmDialog}
+                onCancel={onCancel}
+            />
+            <FormDialog
+                ref={_formDialog}
+                onSuccess={onSubmit}>
+                <View
+                    key="EmployeeView"
+                />
+            </FormDialog>
+        </div>
+    );
 }
 
 function mapStateToProps(state) {
